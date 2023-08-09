@@ -29,7 +29,7 @@ function useOnScreen(ref:React.RefObject<HTMLDivElement>) {
   }
 
 
-export default function Card({pokemon,renderModal}:{pokemon:pokeInfo,renderModal:(pokemon:pokeInfo)=>void}) {
+export default function Card({pokemon,renderModal}:{pokemon:pokeInfo,renderModal:(pokemon:pokeInfo|null)=>void}) {
 
     const cardElement = useRef<HTMLDivElement>(null);
     const isOnScreen = useOnScreen(cardElement);

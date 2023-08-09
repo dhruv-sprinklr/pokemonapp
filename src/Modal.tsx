@@ -11,9 +11,14 @@ type pokeInfo = {
     move: string
   }
 
-  export default function Modal(pokemon:pokeInfo){
+  export default function Modal({pokemon,renderModal}:{pokemon:pokeInfo,renderModal:(pokemon:pokeInfo|null)=>void}){
+    function backgroundClick(e:any){
+        if(e.target.className==="modalParent"){
+            renderModal(null);
+        }
+    }
     return(
-        <div className="modalParent">
+        <div className="modalParent" onClick={(e)=>{backgroundClick(e)}}>
             <div className="modal">
                 <h2>#{pokemon.id} {pokemon.name} </h2>
                 <img src={pokemon.image} alt={pokemon.name} />
