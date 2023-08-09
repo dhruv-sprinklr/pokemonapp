@@ -1,5 +1,5 @@
 import Card from './Card';
-import { useEffect, useState } from "react";
+import { useEffect, useState , SetStateAction} from "react";
 import Modal from './Modal';
 
 type pokeInfo = {
@@ -36,24 +36,28 @@ async function returnPokemonInfo(pokemon:{name:string, url:string},setPokemonCon
 
 export default function Collection() {
     const [pokemonContainer, setPokemonContainer] = useState([] as pokeInfo[]);
-    const [apiEndpoint, setApiEndpoint] = useState('https://pokeapi.co/api/v2/pokemon?limit=10' as string);
+    const [apiEndpoint, setApiEndpoint] = useState('https://pokeapi.co/api/v2/pokemon?limit=30' as string);
     const [showModal,setShowModal]=useState(<div></div>);
     const [isLoading, setIsLoading] = useState(false);
     let stopEffect=false;
     //console.log("rendering");
-    const fetchData = async () => {
+    async function fetchData  () {
         setIsLoading(true);
+        console.log("loading start");
         fetch(apiEndpoint)
             .then(response => response.json())
             .then(async (data) => {
                 for(let pokemon of data.results){
                     await returnPokemonInfo(pokemon,setPokemonContainer);
                 }
-                setIsLoading(false);
+                console.log("loading end",data.next);
                 setApiEndpoint(data.next);
-            });
+            }).then(()=>{
+                setIsLoading(false);
+            })
        
     }
+    
 
     useEffect(() => {
         //console.log("fetching",apiEndpoint)
@@ -80,12 +84,14 @@ export default function Collection() {
     }
 
     function handleScroll(){
-        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading) {
+        if ((window.innerHeight + document.documentElement.scrollTop === (document.documentElement.offsetHeight-1200)) || isLoading) 
           return;
-        }
+
         console.log("fetching more");
         fetchData();
+        
       };
+    
 
       useEffect(() => {
         window.addEventListener('scroll', handleScroll);
