@@ -50,7 +50,7 @@ export default function Collection() {
                     await returnPokemonInfo(pokemon,setPokemonContainer);
                 }
                 setIsLoading(false);
-                 setApiEndpoint(data.next);
+                setApiEndpoint(data.next);
             });
        
     }
@@ -72,9 +72,11 @@ export default function Collection() {
         return () => {window.removeEventListener("keydown",detectEscKey)};
     },[]);
 
-    function renderModal(pokemon:pokeInfo){
-        console.log("returning modal");
-        setShowModal(<Modal {...pokemon}/>);
+    function renderModal(pokemon:pokeInfo|null){
+        console.log("rendering modal");
+        if(pokemon)
+            setShowModal(<Modal {...{pokemon,renderModal}}/>);
+        else setShowModal(<div></div>);
     }
 
     function handleScroll(){
