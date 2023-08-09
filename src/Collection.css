@@ -1,0 +1,4 @@
+.ReactVirtualized__Masonry__innerScrollContainer{
+    overflow: scroll !important;
+    border: 1px solid red;
+}

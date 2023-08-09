@@ -1,6 +1,15 @@
 import Card from "./Card";
 import { useEffect, useState, SetStateAction } from "react";
 import Modal from "./Modal";
+import "./Collection.css";
+import React from "react";
+import ReactDOM from "react-dom";
+import {
+  CellMeasurer,
+  CellMeasurerCache,
+  createMasonryCellPositioner,
+  Masonry,
+} from "react-virtualized";
 
 type pokeInfo = {
   name: string;
@@ -12,6 +21,7 @@ type pokeInfo = {
   ability: string;
   move: string;
 };
+
 async function returnPokemonInfo(
   pokemon: { name: string; url: string },
   setPokemonContainer: any
@@ -93,7 +103,7 @@ export default function Collection() {
   function handleScroll() {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight - 1200 ||
+        document.documentElement.offsetHeight - 1500 ||
       isLoading
     )
       return;
@@ -107,12 +117,46 @@ export default function Collection() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isLoading]);
 
+  const cache = new CellMeasurerCache({
+    defaultHeight: 502,
+    defaultWidth: 302,
+    fixedWidth: true,
+  });
+
+  // Our masonry layout will use 3 columns with a 10px gutter between
+  const cellPositioner = createMasonryCellPositioner({
+    cellMeasurerCache: cache,
+    columnCount: 10,
+    columnWidth: 302,
+    spacer: 10,
+  });
+
+  function cellRenderer({ index, key, parent, style }: any) {
+    const pokemon = pokemonContainer[index];
+    console.log("rendering cell", pokemon);
+    return (
+      <CellMeasurer cache={cache} index={index} key={key} parent={parent}>
+        <Card key={index} {...{ pokemon, renderModal }} />
+      </CellMeasurer>
+    );
+  }
+
   return (
     <div className="Collection">
-      {pokemonContainer.map((pokemon: pokeInfo, index: number) => {
+      {/* {pokemonContainer.map((pokemon: pokeInfo, index: number) => {
         return <Card key={index} {...{ pokemon, renderModal }} />;
-      })}
+      })} */}
       {showModal}
+      {pokemonContainer.length >= 10 && (
+        <Masonry
+          cellCount={pokemonContainer.length}
+          cellMeasurerCache={cache}
+          cellPositioner={cellPositioner}
+          cellRenderer={cellRenderer}
+          height={300}
+          width={1000}
+        />
+      )}
     </div>
   );
 }
