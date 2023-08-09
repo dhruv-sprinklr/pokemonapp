@@ -1,11 +1,6 @@
-import React from 'react';
 import Card from './Card';
 import { useEffect, useState } from "react";
-import { type } from 'os';
 import Modal from './Modal';
-
-type pokemonFunc=(pokemonContainer:pokeInfo[])=>pokeInfo[]
-type setPokemonContainer = (pokemonFunc:pokemonFunc)=>void;
 
 type pokeInfo = {
     name: string,
@@ -38,24 +33,35 @@ async function returnPokemonInfo(pokemon:{name:string, url:string},setPokemonCon
 }
 
 
-let stopEffect=false;
+
 export default function Collection() {
     const [pokemonContainer, setPokemonContainer] = useState([] as pokeInfo[]);
-    const [apiEndpoint, setApiEndpoint] = useState('https://pokeapi.co/api/v2/pokemon?limit=151' as string);
+    const [apiEndpoint, setApiEndpoint] = useState('https://pokeapi.co/api/v2/pokemon?limit=10' as string);
     const [showModal,setShowModal]=useState(<div></div>);
-    useEffect(() => {
-        console.log("fetching")
-       if(!stopEffect){
+    const [isLoading, setIsLoading] = useState(false);
+    let stopEffect=false;
+    //console.log("rendering");
+    const fetchData = async () => {
+        setIsLoading(true);
         fetch(apiEndpoint)
             .then(response => response.json())
             .then(async (data) => {
                 for(let pokemon of data.results){
                     await returnPokemonInfo(pokemon,setPokemonContainer);
                 }
+                setIsLoading(false);
+                 setApiEndpoint(data.next);
             });
-       }
+       
+    }
+
+    useEffect(() => {
+        //console.log("fetching",apiEndpoint)
+       if(!stopEffect){
+             fetchData();
        return () => {stopEffect=true};
-    }, [apiEndpoint]);
+       }
+    }, []);
 
     useEffect(()=>{
         const detectEscKey = window.addEventListener("keydown", (e) => {
@@ -66,19 +72,31 @@ export default function Collection() {
         return () => {window.removeEventListener("keydown",detectEscKey)};
     },[]);
 
-    function returnModal(pokemon:pokeInfo){
+    function renderModal(pokemon:pokeInfo){
         console.log("returning modal");
         setShowModal(<Modal {...pokemon}/>);
     }
 
+    function handleScroll(){
+        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoading) {
+          return;
+        }
+        console.log("fetching more");
+        fetchData();
+      };
+
+      useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, [isLoading]); 
+
     return (
         <div className='Collection'>
-            
             
             {   
                 pokemonContainer.map((pokemon:pokeInfo,index:number) => {
                     return (
-                           <Card key={index} {...{pokemon,returnModal}} />
+                           <Card key={index} {...{pokemon,renderModal}} />
                     )   
                 })
             }
