@@ -33,7 +33,6 @@ export default function Card({pokemon,renderModal}:{pokemon:pokeInfo,renderModal
 
     const cardElement = useRef<HTMLDivElement>(null);
     const isOnScreen = useOnScreen(cardElement);
-    console.log(pokemon);
   
     return (
         <div className='card' ref={cardElement}>
